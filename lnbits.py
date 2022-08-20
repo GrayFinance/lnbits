@@ -13,13 +13,18 @@ class Lnbits:
             headers = {"X-Api-Key": self.admin_key}
         else:
             headers = {"X-Api-Key": self.invoice_key}
-        
         return request(method=method, url=self.url + path, headers=headers, json=data).json()
     
     @cached(TTLCache(maxsize=10, ttl=86400))
     def decode_invoice(self, payment_request: str) -> dict:
         data = {"data": payment_request}
         return self.call("POST", "/v1/payments/decode", data=data)
+
+    def get_wallet(self):
+        return self.call("GET", "/v1/wallet")
+    
+    def list_payments(self, offset: int = 0, limit: int = 10):
+        return self.call("GET", "/v1/payments")
 
     def create_invoice(self, amount: float, memo=None, unit="sat", webhook=None) -> dict:
         data = {"out": False, "amount": amount, "memo": memo, "unit": unit, "webhook": webhook}
@@ -30,4 +35,4 @@ class Lnbits:
 
     def pay_invoice(self, invoice: str) -> dict:
         data = {"out": True, "bolt11": invoice}
-        return self.call("POST", "/v1/payments", data=data, admin=True)
+        return self.call("POST", "/v1/payments", data=data, is_admin=True)
