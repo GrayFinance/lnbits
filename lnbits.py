@@ -12,7 +12,10 @@ class Lnbits:
         if (is_admin == True):
             headers = {"X-Api-Key": self.admin_key}
         else:
-            headers = {"X-Api-Key": self.invoice_key}
+            if (self.invoice_key != None):
+                headers = {"X-Api-Key": self.invoice_key}
+            else:
+                headers = {"X-Api-Key": self.admin_key}
         return request(method=method, url=self.url + path, headers=headers, json=data).json()
     
     @cached(TTLCache(maxsize=10, ttl=86400))
