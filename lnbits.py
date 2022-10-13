@@ -1,4 +1,4 @@
-from cachetools import cached, TTLCache
+from cachetools import cached, TTLCache, LRUCache
 from requests import request
 
 class Lnbits:
@@ -17,15 +17,17 @@ class Lnbits:
             else:
                 headers = {"X-Api-Key": self.admin_key}
         return request(method=method, url=self.url + path, headers=headers, json=data).json()
-    
-    @cached(TTLCache(maxsize=10, ttl=86400))
+
+    @cached(cache=LRUCache(maxsize=10))
     def decode_invoice(self, payment_request: str) -> dict:
         data = {"data": payment_request}
         return self.call("POST", "/v1/payments/decode", data=data)
 
+    @cached(cache=LRUCache(maxsize=25))
     def get_wallet(self):
         return self.call("GET", "/v1/wallet")
-    
+
+    @cached(TTLCache(maxsize=30, ttl=15))
     def list_payments(self, offset: int = 0, limit: int = 10):
         return self.call("GET", "/v1/payments")
 
