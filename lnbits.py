@@ -31,12 +31,12 @@ class Lnbits:
     def list_payments(self, offset: int = 0, limit: int = 10):
         return self.call("GET", "/v1/payments")
 
-    def create_invoice(self, amount: float, memo=None, unit="sat", webhook=None) -> dict:
-        data = {"out": False, "amount": amount, "memo": memo, "unit": unit, "webhook": webhook}
+    def create_invoice(self, amount: float, memo=None, unit="sat", expiry=(60 * 60) * 2, webhook=None) -> dict:
+        data = {"out": False, "amount": amount, "memo": memo, "expiry": expiry, "unit": unit, "webhook": webhook}
         return self.call("POST", "/v1/payments", data=data)
 
     def check_invoice_status(self, payment_hash: str) -> dict:
-        return self.call("GET", f"/v1/payments/{payment_hash}").get("paid")
+        return self.call("GET", f"/v1/payments/{payment_hash}")
 
     def pay_invoice(self, invoice: str) -> dict:
         data = {"out": True, "bolt11": invoice}
